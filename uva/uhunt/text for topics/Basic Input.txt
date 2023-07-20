@@ -1,0 +1,143 @@
+Scanning double:
+double d
+scanf("%lf",&d)	
+	Note : But while printing double simply use %f
+
+SKIPPING INPUT (ASSIGNMENT SUPPRESSION)
+Use asterisk symbol to skip input
+
+Example:
+scanf("%d %*d %d",&a,&b)
+if input: 1 2 3
+then a = 1, b = 3
+
+====================================
+Scanning strings containing whitespaces
+Suppose we want to read a string of at most 10 characters containing whitespaces
+We want to keep reading characters until 10 characters have been read or a newline is reached
+
+Using scanset(i.e [] in which we specify which characters to (or not to) scan)
+	char str[]
+	scanf("%[^\n]",str)
+		Will keep reading characters until a newline character is reached
+		Note: It will not read that newline character
+
+	To read that new line character:
+	char ch
+	scanf("%[^\n]%c",&str,&ch)
+	But the scanned newline character is not of any use to us
+	Using assignment suppression operator
+	scanf("%[^\n]%*c",&str)
+
+Now, we have to limit the scan to 10 characters, so we specify INPUT WIDTH
+	scanf("%10[^\n]%*c",&str)
+	NOTE: In this case the size of str should be 11(for null character)
+
+Example:
+char s1[6],s2[6]
+scanf("%5[^\n]%*c",&s1)
+scanf("%5[^\n]%*c",&s2)
+print s1 and s2 on separate lines
+
+Input 1:
+	abcdef
+	xyz
+
+Output 1:
+	abcde
+	(some garbage)
+
+Explanation:
+	In first scanf, first 5 characters are read
+	Also, an additional character (here 'f') is read and discarded
+	Now we have '\n' in input
+	In next scanf, it reads 0 characters, then reads a newline
+	Thus the size of s2 is 0
+
+Input 2:
+	abcdefg
+	xyx
+
+Output 2:
+	abcde
+	g
+
+Explanation: (read above)
+====================================
+Scanning variable width
+Example: input is 12345
+int a, b 
+scanf("%2d", &a)
+scanf("%3d", &b)
+
+Then, a = 12 and b = 345
+====================================
+Scanning next character ignoring spaces, newlines, tabs
+Just add a space before %c
+	scanf(" %c", &ch)
+
+Example input :
+a   b 		c12
+	3	4 5
+
+Code :
+	char c;
+	while ( scanf(" %c", &c) != -1 ) printf("%c", c)
+
+Output :
+abc12345
+====================================
+Using fgets(char* str, int len, FILE* stream)
+
+It scans the input into string str until a newline or end of file occurs OR
+(len - 1) characters have been read
+
+It automatically appends null (\0) characted to the string
+
+We create this macro for convenience:
+	scanline(str) fgets(str, MAX_LEN, stdin)
+
+Note : It also stores the newline character, if it occurs before len characters
+
+Examples :
+	#define scan_line(str) fgets(str, MAX_LEN, stdin)
+	const int MAX_LEN = 5;
+
+	Code :
+		char str[MAX_LEN];
+		scan_line(str);
+		printf("%d", strlen(str));
+
+	#1
+	Input :
+		abc (No newline)
+	Output :
+		3
+	(String will be saved as [a][b][c][\0])
+
+	#2
+	Input :
+		a bc
+
+	Output :
+		4
+	(String will be saved as [a][ ][b][c][\0])
+
+	#3
+	Input :
+		abc
+
+	Output :
+		4
+	(String will be saved as [a][b][c][\n][\0])
+
+	#4
+	Input :
+		abcde
+
+	Output :
+		4
+	(String will be saved as [a][b][c][d][\0])
+
+	Note : The maximum length of string that can be stored is (len - 1)
+====================================

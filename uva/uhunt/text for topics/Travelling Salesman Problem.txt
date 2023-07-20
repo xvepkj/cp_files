@@ -1,0 +1,9 @@
+PKJ-Self notes.
+Problem Statement:We have n cities and we have to minimize the cost of making a tour through all the n cities and returns to the starting point.
+Possible solutions:
+ 	Brute force:Trying all possible combinations(i.e. n! as we have n choices for the first city and it decreases by 1 for second and so on) can pass the time 
+ 	limit for max 11 cities as for n=11(n!=40M)
+ DP solution:
+ 	We can keep two parameters,the city we are at currently and the cities we have already visited.
+ 	There are a number of ways to represent the second parameter,a very efficient way would be bitmask atleast for atmost 32 cities.
+ 	

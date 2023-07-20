@@ -1,0 +1,99 @@
+Range Sum
+
+a[0...n-1]
+seg[0..4N]
+
+build(L, R, k)
+	if L == R    /* leaf node */
+		seg[k] = a[L]
+	else
+		M = floor((L+R)/2)
+		build(L, M, left(k))
+		build(M+1, R, right(k))
+		seg[k] = seg[left(k)] + seg[right(k)]
+-------------------
+sum(i, j, L, R, k)
+	if i <= L and j >= R /* exact range */
+		return seg[k]
+	if i > R or j < L /* out of range */
+		return 0
+	else
+		return sum(i, j, L, M, left(k)) +
+			sum(i, j, M + 1, R, right(k))
+-------------------
+update(i, x, L, R, k) /* to update a[i] = x */
+	if i < L or i > R
+		return
+	if i == L and i == R
+		seg[k] = x
+	else
+		update(i, x, L, M, left(k))
+		update(i, x, M + 1, R, right(k))
+		seg[k] = seg[left(k)] + seg[right(k)]
+--------------------
+Range update
+a[1...N]
+upd[1...4N] = 0
+seg[1...4N]
+
+update(i, j, L, R, k, x)
+	if i <= L and j >= R
+		upd[k] = x+
+		seg[k] = seg[k] + x * (R - L + 1)
+		return
+	if i > R or j < L
+		return
+	update(i, j, L, M, left(k), x)
+	update(i, j, M + 1, R, right(k), x)
+	seg[k] = seg[left(k)] + seg[right(k)]
+
+sum(i, j, L, R, k)
+	if i <= L and j >= R
+		return seg[k]
+	if i > R or j < L
+		return 0
+	return upd[k] * (min(j, R) - max(i, L) + 1) + sum(i, j, L, R, k)
+--------------------
+--------------------
+--------------------
+
+Range Minimum
+
+a[0...n-1]
+seg[0..4N]
+
+build(L, R, k)
+	if L == R    /* leaf node */
+		seg[k] = a[L]
+	else
+		M = floor((L+R)/2)
+		build(L, M, left(k))
+		build(M+1, R, right(k))
+		x1 = seg[left(k)]
+		x2 = seg[right(K)]
+		seg[k] = (a[x1] < a[x2]) ? x1 : x2
+-------------------
+rmq(i, j, L, R, k)
+	if i <= L and j >= R /* exact range */
+		return seg[k]
+	if i > R or j < L /* out of range */
+		return -1
+	else
+		r1 = rmq(i, j, L, M, left(k))
+		r2 = rmq(i, j, M + 1, R, right(k))
+		if r1 == -1 return r2
+		if r2 == -1 return r1
+		return (a[r1] < a[r2]) ? r1 : r2
+-------------------
+update(i, x, L, R, k) /* to update a[i] = x */
+	if i < L or i > R
+		return
+	if i == L and i == R
+		seg[k] = x
+	else
+		update(i, x, L, M, left(k))
+		update(i, x, M + 1, R, right(k))
+		x1 = seg[left(k)]
+		x2 = seg[right(K)]
+		seg[k] = (a[x1] < a[x2]) ? x1 : x2
+--------------------

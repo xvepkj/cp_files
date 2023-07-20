@@ -1,0 +1,7 @@
+Approach->
+We will keep two vectors,one for lights one for rooms that are connected.
+Have a queue of pair<int,int> & push (0,1) into it.
+We can go to 3 possible states->
+	1.switch off the currently on lights.
+	2.go to the room where the light is currently on & we have a edge connected to it.
+	3.switch on the light in a room whose switch is connected to ours.

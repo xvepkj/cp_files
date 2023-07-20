@@ -1,0 +1,779 @@
+10/17/19, 2:34 PM - Messages and calls are end-to-end encrypted. No one outside of this chat, not even WhatsApp, can read or listen to them. Tap to learn more.
+10/17/19, 2:34 PM - Govind created group "good problems"
+10/17/19, 2:34 PM - Govind added you
+10/17/19, 2:34 PM - Govind: https://codeforces.com/contest/274/problem/B
+10/24/19, 11:17 AM - Govind: https://codeforces.com/problemset/problem/1249/F
+status: unsolved
+10/24/19, 11:18 AM - Govind: https://codeforces.com/problemset/problem/269/B
+status: unsolved
+10/24/19, 6:09 PM - Govind: https://codeforces.com/contest/427/submission/62119878
+Tarjan's SCC
+10/24/19, 7:56 PM - Govind: yahan pe common implementations bhi daal diya karenge
+10/24/19, 7:56 PM - Govind: for convenient access
+10/24/19, 7:57 PM - PKJ: Okay
+11/3/19, 12:46 AM - Govind: Augmenting path algorithm for max cardinality bipartite matching, code with comments for help in understanding
+11/3/19, 12:46 AM - Govind: vector<int> match, visited, leftSet, rightSet;
+vector<vector<int>> adj;
+
+bool augExists (int u) {
+	/* u belongs to leftSet, match[v] as well as visited[v] make sense only for vertices in rightSet  */
+	for (int v : adj[u]) if (!visited[v]) { /* we don't need to check if match[v] = u because if that is the case, then visited[v] = 1 (and we came here by call augExists(match[v])) */
+		visited[v] = true;
+		if (match[v] == -1 || augExists(match[v])) {
+			match[v] = u;
+			return true;
+		}
+	}
+	return false;
+}
+
+int maxMatching () {
+	int V = (int)leftSet.size() + (int)rightSet.size();
+	/* adj must be of size V, vertices are numbered 0...V-1 */
+	/* vertex numbering: 0...(leftSet.size-1), ... (rightSet.size + leftSet.size - 1) */
+	/* construct adjacency list accordingly */
+	/* adjacency list contains directed edges (from leftSet to rightSet) */
+	match.assign(V, -1); /* all vertices are unmatched */
+	int ans = 0;
+	for (int i = 0; i < (int)leftSet.size(); i++) {
+		/* all vertices in leftSet are unmatched initially. Calling augExists on an
+		unmatched vertex will not affect any other unmatched vertices in leftSet */
+		visited.assign(V, 0);
+		ans += augExists(i);
+	}
+	return ans;
+}
+/
+11/4/19, 1:03 AM - Govind: Order statistics tree: for finding kth smallest element in a dynamic set
+Implemented using segment tree
+
+class SegOST {
+	/* Order statistics tree */
+	int mx; /* Supports values from 0...mx-1 */
+	int sz; /* Number of elements in tree */
+	vi freq, left, right;
+
+	void update (int l, int r, int k, int x) {
+		if (l > x || r < x) return;
+		if (l == r) {
+			assert(l == x);
+			left[k] = freq[x];
+			return;
+		}
+		int m = (l + r) >> 1;
+		update(l, m, k << 1, x);
+		update(m + 1, r, (k << 1) | 1, x);
+		left[k] = left[k << 1] + right[k << 1];
+		right[k] = left[(k << 1) | 1] + right[(k << 1) | 1];
+	}
+
+	int findOrder (int l, int r, int k, int p) {
+		if (l == r) {
+			assert(p <= freq[l]);
+			return l;
+		}
+		int m = (l + r) >> 1;
+		if (p <= left[k]) return findOrder(l, m, k << 1, p);
+		else return findOrder(m + 1, r, (k << 1) | 1, p - left[k]);
+	}
+
+	public:
+	SegOST (int _mx) {
+		mx = _mx;
+		freq.assign(mx, 0);
+		left.assign(4 * mx, 0);
+		right.assign(4 * mx, 0);
+		sz = 0;
+	}
+
+	/* increase frequency of val by one */
+	void insert (int val) {
+		freq[val]++;
+		update(0, mx - 1, 1, val);
+		sz++;
+	}
+
+	/* reduce frequency of val by one */
+	void erase (int val) {
+		if (freq[val] == 0) return;
+		freq[val]--;
+		update(0, mx - 1, 1, val);
+		sz--;
+	}
+
+	/* find pth smallest element */
+	int findOrder (int p) {
+		/* 1 <= p <= sz */
+		if (p < 1 || p > sz) return -1;
+		return findOrder(0, mx - 1, 1, p);
+	}
+};
+11/4/19, 1:04 AM - Govind: remember that problem in a long challenge
+11/4/19, 1:04 AM - Govind: w8
+11/4/19, 1:05 AM - Govind: https://www.codechef.com/MARCH19A/problems/SUBPRNJL
+11/4/19, 1:05 AM - Govind: i'm sure you would remember
+11/4/19, 1:07 AM - PKJ: Yes yes.
+11/4/19, 1:09 AM - Govind: can solve it easily using this
+11/4/19, 1:09 AM - PKJ: Will check it out.
+11/4/19, 1:10 AM - Govind: also, post implementations and notes here whenever you feel it may help
+11/4/19, 1:11 AM - PKJ: Okay okay👌
+11/5/19, 8:32 PM - Govind: preorder traversal : iterative (by pkjrockzz)
+
+void preOrder(Node *root) {
+        stack<Node*> s;
+        while (root != NULL) {
+            cout << root->data << " ";
+            if (root->right) s.push(root->right);
+            if (root->left) root = root->left;
+            else if (!s.empty()) { 
+                root = s.top(); 
+                s.pop(); 
+            }
+            else root = NULL;
+        }
+    }
+11/7/19, 10:43 PM - Govind: Sparse table implementation:
+
+template<typename T> class SparseTable {
+	vector<vector<T>> v;
+	int n, k;
+	function<T (T, T)> func;
+	public:
+	SparseTable (vector<T> a, function<T (T, T)> _func) {
+		func = _func;
+		n = (int)a.size();
+		k = 0;
+		while ((1 << k) <= n) k++;
+		v.assign(k, vector<T> (n));
+		for (int i = 0; i < n; i++) v[0][i] = a[i];
+		for (int j = 1; j < k; j++)	
+			for (int i = 0; i < n - (1 << j) + 1; i++) 
+				v[j][i] = func(v[j - 1][i], v[j - 1][i + (1 << (j - 1))]);
+	}
+
+	T query (int i, int j) {
+		int p = 8 * (int)sizeof(int) - __builtin_clz(j - i + 1) - 1;
+		return func(v[p][i], v[p][j - (1 << p) + 1]);
+	}
+};
+
+Tested on: 
+https://www.spoj.com/problems/RMQSQ/
+https://www.spoj.com/problems/THRBL/
+11/7/19, 10:44 PM - Govind: Suppose we want to make min sparse table for some int vector, then simply do:
+11/7/19, 10:44 PM - Govind: SparseTable<int> st (v, mini)
+where v is a vector<int> and mini is a function which takes 2 arguments and returns their minimum
+11/8/19, 5:29 AM - PKJ: https://codeforces.com/contest/1242/problem/B
+11/8/19, 5:29 AM - PKJ: Status:Unsolved
+11/9/19, 11:01 AM - PKJ: https://codeforces.com/contest/1182
+11/10/19, 6:02 PM - Govind: New Doc 2019-11-10 17.56.20.pdf (file attached)
+New Doc 2019-11-10 17.56.20
+11/10/19, 6:10 PM - Govind: for E, you forgot to mention the recurrence for power of c
+11/10/19, 7:08 PM - PKJ: True,true.
+11/10/19, 7:11 PM - PKJ: DOC-20191110-WA0006. (file attached)
+566 Div.2
+11/10/19, 7:12 PM - PKJ: Rectified.
+11/10/19, 9:09 PM - Govind: <Media omitted>
+New Doc 2019-11-10 21.08.52_1
+11/10/19, 9:11 PM - Govind: bro your recurrence for c, how did you derive it?
+11/10/19, 9:13 PM - PKJ: Observing first few cases only
+11/11/19, 7:12 PM - PKJ: https://codeforces.com/contest/1173
+11/11/19, 7:12 PM - PKJ: vector<int> match, visited, leftSet, rightSet;
+vector<vector<int>> adj;
+
+bool augExists (int u) {
+	/* u belongs to leftSet, match[v] as well as visited[v] make sense only for vertices in rightSet  */
+	for (int v : adj[u]) if (!visited[v]) { /* we don't need to check if match[v] = u because if that is the case, then visited[v] = 1 (and we came here by call augExists(match[v])) */
+		visited[v] = true;
+		if (match[v] == -1 || augExists(match[v])) {
+			match[v] = u;
+			return true;
+		}
+	}
+	return false;
+}
+
+int maxMatching () {
+	int V = (int)leftSet.size() + (int)rightSet.size();
+	/* adj must be of size V, vertices are numbered 0...V-1 */
+	/* vertex numbering: 0...(leftSet.size-1), ... (rightSet.size + leftSet.size - 1) */
+	/* construct adjacency list accordingly */
+	/* adjacency list contains directed edges (from leftSet to rightSet) */
+	match.assign(V, -1); /* all vertices are unmatched */
+	int ans = 0;
+	for (int i = 0; i < (int)leftSet.size(); i++) {
+		/* all vertices in leftSet are unmatched initially. Calling augExists on an
+		unmatched vertex will not affect any other unmatched vertices in leftSet */
+		visited.assign(V, 0);
+		ans += augExists(i);
+	}
+	return ans;
+}
+/
+11/11/19, 7:13 PM - PKJ: Order statistics tree: for finding kth smallest element in a dynamic set
+Implemented using segment tree
+
+class SegOST {
+	/* Order statistics tree */
+	int mx; /* Supports values from 0...mx-1 */
+	int sz; /* Number of elements in tree */
+	vi freq, left, right;
+
+	void update (int l, int r, int k, int x) {
+		if (l > x || r < x) return;
+		if (l == r) {
+			assert(l == x);
+			left[k] = freq[x];
+			return;
+		}
+		int m = (l + r) >> 1;
+		update(l, m, k << 1, x);
+		update(m + 1, r, (k << 1) | 1, x);
+		left[k] = left[k << 1] + right[k << 1];
+		right[k] = left[(k << 1) | 1] + right[(k << 1) | 1];
+	}
+
+	int findOrder (int l, int r, int k, int p) {
+		if (l == r) {
+			assert(p <= freq[l]);
+			return l;
+		}
+		int m = (l + r) >> 1;
+		if (p <= left[k]) return findOrder(l, m, k << 1, p);
+		else return findOrder(m + 1, r, (k << 1) | 1, p - left[k]);
+	}
+
+	public:
+	SegOST (int _mx) {
+		mx = _mx;
+		freq.assign(mx, 0);
+		left.assign(4 * mx, 0);
+		right.assign(4 * mx, 0);
+		sz = 0;
+	}
+
+	/* increase frequency of val by one */
+	void insert (int val) {
+		freq[val]++;
+		update(0, mx - 1, 1, val);
+		sz++;
+	}
+
+	/* reduce frequency of val by one */
+	void erase (int val) {
+		if (freq[val] == 0) return;
+		freq[val]--;
+		update(0, mx - 1, 1, val);
+		sz--;
+	}
+
+	/* find pth smallest element */
+	int findOrder (int p) {
+		/* 1 <= p <= sz */
+		if (p < 1 || p > sz) return -1;
+		return findOrder(0, mx - 1, 1, p);
+	}
+};
+11/11/19, 7:13 PM - PKJ: preorder traversal : iterative (by pkjrockzz)
+
+void preOrder(Node *root) {
+        stack<Node*> s;
+        while (root != NULL) {
+            cout << root->data << " ";
+            if (root->right) s.push(root->right);
+            if (root->left) root = root->left;
+            else if (!s.empty()) { 
+                root = s.top(); 
+                s.pop(); 
+            }
+            else root = NULL;
+        }
+    }
+11/11/19, 7:13 PM - PKJ: Sparse table implementation:
+
+template<typename T> class SparseTable {
+	vector<vector<T>> v;
+	int n, k;
+	function<T (T, T)> func;
+	public:
+	SparseTable (vector<T> a, function<T (T, T)> _func) {
+		func = _func;
+		n = (int)a.size();
+		k = 0;
+		while ((1 << k) <= n) k++;
+		v.assign(k, vector<T> (n));
+		for (int i = 0; i < n; i++) v[0][i] = a[i];
+		for (int j = 1; j < k; j++)	
+			for (int i = 0; i < n - (1 << j) + 1; i++) 
+				v[j][i] = func(v[j - 1][i], v[j - 1][i + (1 << (j - 1))]);
+	}
+
+	T query (int i, int j) {
+		int p = 8 * (int)sizeof(int) - __builtin_clz(j - i + 1) - 1;
+		return func(v[p][i], v[p][j - (1 << p) + 1]);
+	}
+};
+
+Tested on: 
+https://www.spoj.com/problems/RMQSQ/
+https://www.spoj.com/problems/THRBL/
+11/11/19, 7:16 PM - PKJ: <Media omitted>
+New Doc 2019-11-10 17.56.20
+11/11/19, 7:16 PM - PKJ: DOC-20191110-WA0006. (file attached)
+566 Div.2
+11/11/19, 7:16 PM - PKJ: <Media omitted>
+New Doc 2019-11-10 21.08.52_1
+11/11/19, 7:16 PM - PKJ: .
+11/12/19, 2:46 AM - Govind: Modular Arithmetic Library
+-------------------------------------
+ll MOD = (ll)1e9 + 7;
+ll gcdExt (ll a, ll b, ll&x, ll& y) {
+	if (a == 0) {
+		x = 0;
+		y = 1;
+		return b;
+	}
+	ll xn, yn;
+	ll g = gcdExt(b % a, a, xn, yn);
+	x = yn - (b / a) * xn;
+	y = xn;
+	return g;
+}
+ 
+ll modInv (ll a, ll p) {
+	ll x, y;
+	ll g = gcdExt(a, p, x, y);
+	assert(g == 1);
+	return (x % p + p) % p;
+}
+ 
+ll addMod (ll a, ll b) {
+	ll res = a + b;
+	if (res > MOD) res -= MOD;
+	return res;
+}
+ 
+ll mulMod (ll a, ll b) {
+	return (a * b) % MOD;
+}
+ 
+ll subMod (ll a, ll b) {
+	ll res = a - b;
+	if (res < 0) res += MOD;
+	return res;
+}
+ 
+ll binExp (ll a, ll b) {
+	ll r = 1, x = a;
+	while (b) {
+		if (b & 1) r = mulMod(r, x);
+		x = mulMod(x, x);
+		b >>= 1;
+	}
+	return r;
+}
+11/12/19, 2:47 AM - Govind: Square Matrix supporting modular exponentiation
+-----------------------------------------
+
+const int MAX_SIZE = 5;
+struct SquareMatrix {
+	ll mat[MAX_SIZE][MAX_SIZE];
+	int sz;
+	SquareMatrix (int dim) {
+		sz = dim;
+		memset(mat, 0, sizeof mat);
+		for (int i = 0; i < sz; i++) mat[i][i] = 1;
+	}
+ 
+	SquareMatrix operator * (SquareMatrix& b) {
+		SquareMatrix& a = *this;
+		assert(a.size() == b.size());
+		SquareMatrix c(sz);
+		for (int i = 0; i < sz; i++) for (int j = 0; j < sz; j++) {
+			c(i, j) = 0;
+			for (int k = 0; k < sz; k++) c(i, j) = addMod(c(i, j), mulMod(a(i, k), b(k, j)));
+		}
+		return c;
+	}
+	
+	SquareMatrix binExp (ll exp) {
+		SquareMatrix r = SquareMatrix(sz), x = *this;
+		while (exp) {
+			if (exp & 1) r = r * x;
+			x = x * x;
+			exp >>= 1;
+		}
+		return r;
+	}
+ 
+	ll& operator () (int i, int j) { return mat[i][j]; }
+ 
+	int size() {
+		return sz;
+	}
+};
+11/12/19, 2:49 AM - Govind: How to use?
+Observe this example:
+
+ll arr [][3] = {
+		{1, 1, 1}, 
+		{1, 0, 0}, 
+		{0, 1, 0}
+	};
+SquareMatrix mat(3);
+for (int i = 0; i < 3; i++) for (int j = 0; j < 3; j++) mat(i, j) = arr[i][j];
+mat = mat.binExp(100);
+
+This will set mat = mat^100 mod MOD which is set globally
+11/12/19, 9:32 PM - Govind: 1173.pdf (file attached)
+1173
+11/12/19, 10:11 PM - Govind: Add to the last statement:
+Let s be the root instead of r. For some valid configuration C, it would have occured in both cases (since it is valid, and we enumerate all valid configurations). This implies we don't need to add cases for different roots.
+11/12/19, 11:14 PM - PKJ: https://codeforces.com/contest/1150
+11/13/19, 12:37 AM - PKJ: DOC-20191112-WA0005. (file attached)
+564 Div 2
+11/13/19, 1:40 AM - Govind: in A, if x = y and z = 0?
+am i missing something obvious?
+11/13/19, 1:42 AM - Govind: in code you have considered that case, i see
+11/13/19, 1:43 AM - PKJ: Ya I think I forgot to mention in the analysis,my bad.
+11/19/19, 12:17 AM - PKJ: DOC-20191119-WA0000. (file attached)
+556 Div 2
+11/19/19, 10:08 PM - Govind: Finding all divisors of a number:
+----------------------------------------
+const int MAX_VAL = (int)1e6 + 1000;
+bitset<MAX_VAL> isPrime;
+vi primes;
+
+/* for findDiv */
+vi fac, pw;
+vi dv; /* List of divisors */
+
+void sieve() {
+	isPrime.set();
+	for (int i = 2; i * i < MAX_VAL; i++) if (isPrime[i])
+		for (int j = i * i; j < MAX_VAL; j += i) isPrime[j] = false;
+	for (int i = 2; i < MAX_VAL; i++) if (isPrime[i]) primes.push_back(i);
+	dbg(primes.size());
+}
+
+void findDiv(int i, int x) {
+	if (i == (int)fac.size()) { dv.push_back(x); return; }
+	int p = 1;
+	for (int j = 0; j <= pw[i]; j++) {
+		findDiv(i + 1, x * p);
+		p *= fac[i];
+	}
+}
+
+void findDiv(int x) {
+	fac.clear();
+	pw.clear();
+	dv.clear();
+	for (int i = 0; primes[i] * primes[i] <= x; i++) {
+		int k = 0;
+		while (x % primes[i] == 0) { k++; x /= primes[i]; }
+		if (k) { fac.push_back(primes[i]); pw.push_back(k); }
+	}
+	if (x != 1) { fac.push_back(x); pw.push_back(1); }
+	findDiv(0, 1);
+}
+11/22/19, 1:27 AM - Govind: For date related operations:
+
+/* ======================================== */
+int firstDay = 1;
+string dayOfWeek[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+int numDays[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+int numDaysLeap[] = {0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+bool isLeapYear (int y) { return (y % 4 == 0) && (y % 100 != 0 || y % 400 == 0); }
+
+/* Number of leap days from year 1 to y */
+int leapDays (int y) { return y / 4 - y / 100 + y / 400; }
+
+/* Get number of days passed since the beginning */
+int getValue (tuple<int, int, int> date) {
+	int d = get<0>(date), m = get<1>(date), y = get<2>(date);
+	int ans = (y - 1) * 365 + leapDays(y - 1) + (d - 1);
+	int* nd = isLeapYear(y) ? numDaysLeap : numDays;
+	for (int i = 0; i < m; i++) ans += nd[i];
+	return ans;
+}
+
+/* Get current date, given number of days passed since the beginning */
+tuple<int, int, int> getDate (int d) {
+	int lo = 0, hi = d / 365 + 1, mid, sm = 0, y, m = 0;
+	while (lo < hi) {
+		mid = (lo + hi - 1) / 2 + 1;
+		if (mid * 365 + leapDays(mid) > d) hi = mid - 1;
+		else lo = mid; 
+	} 
+	y = lo;
+	d = d - (y * 365 + leapDays(y));
+	int* nd = isLeapYear(y + 1) ? numDaysLeap : numDays; 
+	while (sm + nd[m + 1] <= d) sm += nd[++m];
+	d -= sm; 
+	return tuple<int, int, int>(d + 1, m + 1, y + 1);
+}
+
+int getDayOfWeek (tuple<int, int, int> date) {
+	return (firstDay + getValue(date)) % 7;
+}
+/* ======================================== */
+11/22/19, 1:28 AM - Govind: Example usage:
+Suppose we are given a date d (as a tuple<int, int, int>) and we need to find the date after k days pass
+newDate = getDate(getValue(d) + k)
+11/25/19, 3:40 AM - PKJ: https://codeforces.com/contest/1262
+11/25/19, 3:43 AM - PKJ: DOC-20191125-WA0000. (file attached)
+CF 602 Div 2
+11/25/19, 11:14 PM - PKJ: https://codeforces.com/contest/1108
+11/25/19, 11:14 PM - PKJ: DOC-20191125-WA0008. (file attached)
+CF Div 3 535
+12/11/19, 9:07 PM - Govind: try and discuss:
+https://codeforces.com/contest/48/problem/C
+12/12/19, 4:14 PM - Govind: add to your todo
+
+https://codeforces.com/contest/66/problem/C
+12/12/19, 8:16 PM - Govind: add to todo: attempt and discuss
+
+https://codeforces.com/contest/67/problem/A
+12/13/19, 4:03 PM - Govind: add to todo
+https://www.codechef.com/problems/MIXTURES
+12/14/19, 1:09 AM - Govind: playing with primes and factors
+
+https://www.codechef.com/problems/SUBLCM
+12/14/19, 1:10 AM - Govind: (can't reveal the topic)
+
+https://www.codechef.com/problems/AND
+12/14/19, 1:56 AM - Govind: /* Finding sum gcd(1, n) + gcd(2, n) + ... + gcd(n, n) efficiently 
+	
+   	Check out:
+		https://onlinejudge.org/external/114/11424.pdf
+ */
+
+#include <algorithm>
+#include <iostream>
+#include <cstring>
+#include <cassert>
+#include <cstdio>
+#include <bitset>
+#include <string>
+#include <vector>
+#include <cmath>
+#include <queue>
+#include <map>
+#include <set>
+using namespace std;
+using ll = long long;
+using ii = pair<int, int>;
+using pll = pair<ll, ll>;
+ 
+#ifdef XVENOM
+	#define errp(...) fprintf(stderr, __VA_ARGS__)
+#else
+	#define errp(...)
+#endif
+#define dbg(x) errp(" %s = %s\n", #x, to_string(x).data())
+/* ==================== */ 
+const int N = (int)1e6 + 1000;
+int phi[N], f[N];
+vector<int> primes;
+/* computes euler phi */
+void phiSieve() {
+	for (int i = 0; i < N; i++) phi[i] = i;
+	for (int i = 2; i < N; i++) if (phi[i] == i) {
+		primes.push_back(i);
+		for (int j = i; j < N; j += i) phi[j] = phi[j] / i * (i - 1);
+	}
+}
+
+/* Finding Divisors ------------------------------------------- */
+vector<int> dv; /* dv is the result you want */
+vector<ii> fp; /* <primeFactor, power> pair */
+
+void findDivisors (int i, int x) {
+	if (i == (int)fp.size()) { dv.push_back(x); return; }
+	int p = 1;
+	for (int j = 0; j <= fp[i].second; j++) {
+		findDivisors(i + 1, x * p);
+		p *= fp[i].first;
+	}
+}
+
+void findDivisors (int x) {
+	fp.clear(); dv.clear();
+	for (int i = 0; primes[i] * primes[i] <= x; i++) {
+		int k = 0;
+		while (x % primes[i] == 0) { x /= primes[i]; k++; }
+		if (k) fp.push_back({primes[i], k});
+	}
+	if (x != 1) fp.push_back({x, 1});
+	findDivisors(0, 1);
+}
+/* ------------------------------------------------------------ */
+
+int calc (int n) {
+	int ans = 0;
+	for (int i = 1; i <= n; i++)
+		ans += __gcd(i, n);
+	return ans;
+}
+
+int calc2 (int n) {
+	findDivisors(n);
+	int ans = 0;
+	for (int d : dv) ans += d * phi[n / d];
+	return ans;
+}
+
+int main() {
+	phiSieve();
+	int test = 10000;
+	for (int i = 1; i <= test; i++) {
+		assert(calc(i) == calc2(i));
+	}
+	errp("Pass till %d\n", test);
+}
+12/14/19, 1:56 AM - Govind: this only verifies a formula given at http://oeis.org/A018804
+12/15/19, 6:48 PM - Govind: https://www.codechef.com/problems/MULTQ3
+12/16/19, 5:56 PM - Govind: https://codeforces.com/contest/1132/problem/F
+12/17/19, 1:05 AM - Govind: https://codeforces.com/contest/77/problem/B
+rare
+12/20/19, 1:57 PM - Govind: vector<string> split (string t, string delim) {
+		vector<string> res;
+		char* tmp = new char[(int)t.size() + 10];
+		strcpy(tmp, t.c_str());
+		for (char* q = strtok(tmp, delim.c_str()); q; q = strtok(NULL, delim.c_str()))
+			res.push_back(q);
+		delete(tmp);
+		return res;
+	}
+12/20/19, 1:57 PM - Govind: nothing special just a utility function
+1/7/20, 4:27 PM - Govind: https://atcoder.jp/contests/abc049/tasks/arc065_b
+Given two graphs, find components which are connected in both graphs
+1/12/20, 12:07 AM - Govind: Useful in some cases where vector manipulation needs to be done from the front
+(we store it in reverse)
+/* vector<int> a : reverse sorted */
+	int z;
+	cin >> z;
+	int cnt = (int)(a.rend() - upper_bound(a.rbegin(), a.rend(), z));
+	/* cnt = number of elements > z in a */
+	dbg(cnt);
+1/19/20, 1:47 PM - Govind: How to maintain a dynamic set which supports the following:
+1. Get the sum of k largest elements (if k > size then return whole sum)
+2. Add elements efficiently
+3. Remove elements efficiently
+1/19/20, 2:56 PM - Govind: /* T = int or long long */
+template <typename T>
+class SumMultiset {
+	private:
+	T cnt, sm;
+	map<T, T> freq;
+ 
+	public:
+	SumMultiset (): cnt(0), sm(0) {}
+ 
+	void add (T x, T k) {
+		assert(k > 0);
+		sm += x * k;	
+		freq[x] += k;
+		cnt += k;
+	}
+ 
+	void remove (T x, T k) {
+		assert(k > 0);	
+		auto itr = freq.find(x);
+		assert(itr != freq.end() && itr->second >= k);
+		itr->second -= k;
+		sm -= k * x;
+		cnt -= k;
+		if (itr->second == 0) freq.erase(itr);
+	}
+ 
+	T minElement () {
+		assert(cnt > 0);
+		return freq.begin()->first;
+	}
+ 
+	T maxElement () {
+		assert(cnt > 0);
+		return (--freq.end())->first;
+	}
+	
+	bool empty () { return cnt == 0; }
+	T size() { return cnt; }
+	T frequency (T x) {
+		auto itr = freq.find(x);
+		if (itr == freq.end()) return 0;
+		return itr->second;
+	}
+	T sum () { return sm; }
+};
+ 
+struct MaxKSet {
+	SumMultiset<ll> S, R;
+	MaxKSet(ll _k): k(_k) { n = 0; }
+	ll n, k;
+	void add (ll x) {
+		if (n < k) S.add(x, 1); 
+		else {
+			ll z = S.minElement();	
+			if (x > z) { S.remove(z, 1); S.add(x, 1); R.add(z, 1); }		
+			else R.add(x, 1);
+		}
+		n++;
+	}
+ 
+	void remove (ll x) {
+		if (S.frequency(x) > 0) {
+			S.remove(x, 1);
+			if (!R.empty()) {
+				ll z = R.maxElement();
+				S.add(z, 1);
+				R.remove(z, 1);
+			}
+		}
+		else {
+			assert(R.frequency(x) > 0);
+			R.remove(x, 1);
+		}
+		n--;
+	}
+ 
+	ll sum () { return S.sum(); }
+	ll remSum() { return R.sum(); }
+ 
+};
+1/19/20, 2:59 PM - Govind: By using this you can solve this 2300 problem easily :D
+
+http://codeforces.com/problemset/problem/182/C
+3/7/20, 7:28 PM - Govind: https://codeforces.com/contest/1323/problem/D
+5/9/20, 11:38 AM - Govind: @919654963228 yahan daal diya kr
+5/9/20, 11:39 AM - Govind: 15 min pehle
+5/9/20, 11:39 AM - Govind: contest participation announcement
+5/9/20, 11:39 AM - PKJ: 👍
+5/9/20, 7:58 PM - PKJ: Contest in 7 minutes.
+5/11/20, 4:13 PM - PKJ: https://codeforces.com/problemset/problem/159/E
+5/11/20, 8:02 PM - PKJ: https://codeforces.com/contest/1342
+5/13/20, 7:48 PM - PKJ: https://codeforces.com/contest/1343
+5/14/20, 9:23 PM - PKJ: https://codeforces.com/contest/1353
+5/14/20, 9:24 PM - PKJ: On going,forgot to post.
+5/17/20, 7:51 PM - PKJ: https://codeforces.com/contest/1355
+7/10/20, 4:03 PM - PKJ: https://codeforces.com/problemset/problem/449/A
+7/10/20, 4:05 PM - PKJ: https://codeforces.com/problemset/problem/331/B1
+7/10/20, 4:06 PM - PKJ: https://codeforces.com/problemset/problem/288/C
+7/10/20, 4:08 PM - PKJ: https://codeforces.com/problemset/problem/159/E
+7/10/20, 4:10 PM - PKJ: https://codeforces.com/problemset/problem/585/B
+7/12/20, 2:54 AM - Govind: IMG-20200712-WA0000.jpg (file attached)
+7/12/20, 2:12 PM - Govind: IMG-20200712-WA0002.jpg (file attached)
+7/12/20, 2:12 PM - Govind: IMG-20200712-WA0003.jpg (file attached)
+7/12/20, 2:13 PM - Govind: ignore prev. one
+7/13/20, 1:05 PM - Govind: IMG-20200713-WA0005.jpg (file attached)
+7/13/20, 5:44 PM - Govind: IMG-20200713-WA0006.jpg (file attached)
+7/13/20, 10:25 PM - Govind: IMG-20200714-WA0001.jpg (file attached)
+7/14/20, 9:00 AM - PKJ: https://codeforces.com/problemset/problem/460/C
+7/14/20, 9:02 AM - PKJ: https://codeforces.com/problemset/problem/101/B
+7/14/20, 9:03 AM - PKJ: https://codeforces.com/problemset/problem/84/C
+7/14/20, 9:04 AM - PKJ: https://codeforces.com/problemset/problem/711/C
+7/14/20, 9:04 AM - PKJ: https://codeforces.com/problemset/problem/678/D
+7/17/20, 12:02 AM - Govind: By binary searching on a given max of minimum height,
+can be reduced to the following problem: Is is possible to make all elements of an array A (having non-negative integers) equal to 0 by performing atmost M number of operations where each operation consists of selecting a subarray of size K and decrementing each positive integer in that range by 1

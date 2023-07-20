@@ -1,0 +1,9 @@
+Approach:- 
+We will keep the price of edge the destination vertex and the length(this is basically the amount of  change in fuel as the 1 length requires 1 unit of fuel.)
+  Now to do "Lazy deletion(refer in book if forgotten)" we will use dp type approach-memo[fuel    
+    capacity][edge]
+Initially we will set price of each edge as 0 and if we buy a unit of fuel at u we will add price[u] to price of edge and Enqueue it.
+ We will only enqueue the vertices in adj list if they need less or equal fuel than we have to get to them.
+ if(e is reached)result price=the price that comes with e.
+
+

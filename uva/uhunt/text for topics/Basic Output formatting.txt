@@ -1,0 +1,49 @@
+====================================
+FIXED WIDTH STRING AND JUSTIFICATION
+
+Specify a number between % and s to set the MINIMUM width of output
+printf("%_s") -> _ = number
+By default the justification would be LEFT.
+By adding a negative sign to the number, the justification can be made to RIGHT.
+
+Example: printf("%5s","Test")
+
+Note: What if the length of string is greater than specified width?
+	Then the output width would be determined by length of string.
+
+====================================
+NUMBER OF DIGITS TO DISPLAY (Integer)
+
+Example: If we want to display 6 digits for number 123 (i.e, 000123)
+	printf("%.6d", 123)
+
+Note: This can be used with column width. Consider the following format
+	printf("%A.Bd", x) -> will print x as a 'B' digit number and column width 'A'
+	
+====================================
+FORMATTING FLOATING POINT NUMBERS
+
+Output width of a floating point number can be specified similar to strings
+That is, a number between % and f
+The justification also works in a similar manner
+
+In addition to that, we can also specify how many digits after the decimal places we wish to display
+This is done by adding a '.' and another number specifying the number of digits between % and f
+
+Example: printf("%-6.2f",15.332)
+	Will print 15.33, right justified, occupying 6 character width.
+
+Note: Similar to the above case,
+	If length of floating point number is greater than specified width,
+	then output width would be determined by the number.
+
+====================================
+VARIABLE OUTPUT WIDTH
+Use asterisk(*) symbol
+NOTE: This does NOT work in Java printf
+	Create a string containing the value of the variable first
+
+Ex. printf("%*s", width, string)
+	printf("%*.*f", width, precision, number)
+====================================
+
