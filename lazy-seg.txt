@@ -1,0 +1,38 @@
+Task: Update [p, q] with value x
+
+val[], upd[]
+
+------------------------
+update(node, l, r, k)
+	if out of range || [p, q] overlaps [l, r] completely
+		manually calculate val[k]
+		push_update()
+		return
+
+	push_update()
+	update(left), update(right)
+	pull_value()
+------------------------
+query(node, l, r, k)
+	if exact range
+		manually calculate val[k]
+		push_update()
+		
+		return val[k]
+
+	push_update()
+	res = f(query(left), query(right))
+	pull_value()
+	return res
+------------------------
+push_update()
+	on node k,
+	t <- upd[k]
+	upd[k] <- 0
+	upd[left(k)] <- t
+	upd[right(k)] <- t
+
+pull_value()
+	on node k,
+	val[k] <- f(val[left(k)], val[right(k)])
+------------------------

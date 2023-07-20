@@ -1,0 +1,85 @@
+### Vim Notes 
+- k - up 
+- j - down
+- l - right
+- h - left
+- 10h - to move 10 left, same for j,k,l
+- e - to get to current word's end 
+- w - to get to current word's start
+- b - to get to current word's back
+- 0 - line starting
+- ; - line end
+- ] - paragraphs end 
+- G - bottom of the page
+- 26G - get to absolute line number
+- gg - start of the page
+- Shift + 5 - get to matching bracket
+- z + . -> to get something to middle of page
+- z + t -> to get something to top of page
+- z + b -> to get something to bottom of page
+- ctrl + d -> to get x number of lines down with cursor
+- ctrl + u -> to get x number of lines up with cursor
+- d + motion -> delete till end of the word
+- dd - to delete line
+- ggdG - to delete everything
+- y + motion - copy acc to motion
+- p - paste
+- x - delete single character
+- xp - to swap character's (
+    why? : because delete takes character to same register that y does i.e. default character
+)
+- "ayw - put this word into a register
+- "ap - paste a register
+- "+p - to paste content into system's register
+- gg"+pG - paste whole page to system's register (just logical command)
+- i - insert
+- S - delete current line and enter insert mode
+- s - delete current character and enter insert mode
+- A - go to end of line and start inserting
+- o - go to new line and starting inserting
+- O - create a new line above and start inserting 
+- a - insert from next character
+- c - delete the current thing and starting inserting
+- di{ - delete in current bracket i.e. {
+- dit - delete in tags <>
+- diw - delete current word
+- dip - delete in paragraph
+- dis - delete in sentence
+- any dis will also be cis, yis
+- v - visual mode
+- ctrl + v - visual mode
+- kj or esc - enter normal mode
+- r - replace character
+- R - starting replacing and inserting 
+- I - to insert at start of line
+- I - to insert something at every lines start in visual mode
+- c - to replace something in visual block mode
+- u - undo
+- ctrl + y - redp
+- nerd tree plugin - directory browsing
+- :r filename = to paste file's contents
+- :r !command - to get content of terminal command into the file
+- X - one character backwards
+- :%s/Hello/Hi/g - replace all Hello with Hi
+- :.,.+2s/Hello/Hi/g - replace all Hello with Hi
+- hello hallo
+- :%s/h\([a-z]*\)o/t\1/y/g
+- telly tally
+- P - paste backwards
+- fa - go to next a 
+- Fa - go to previous a 
+- ta - go to just before next a 
+- Ta - go to just after previous a
+- W - skips only white spaces
+- E - skips only white spaces
+- /cnt - cnt occurence (n to go next, N previous)
+- /r[a-z]* - anything starting with r
+- :reg - check what is in registers
+- gt - tab switch (can use with motions)
+- ctrl + motion - to move around open windows in editor
+- :tabnew - to open new tab
+ 
+
+
+
+

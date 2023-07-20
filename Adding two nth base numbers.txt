@@ -1,0 +1,16 @@
+void addinbase(int base){//numbers being contained in vectors ad and bd
+	int maxlen=(int)ad.size();
+	int carry=0;
+	for(int i=0;i<maxlen;i++){
+		int sumati=ad[i]+bd[i]+carry;
+		if(sumati>=base){
+			carry=1;
+			ans.push_back(sumati-base);
+		}
+		else {
+			ans.push_back(sumati-base);
+			carry=0;
+		}
+	}
+	if(carry==1)ans.push_back(1);
+}
